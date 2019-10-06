@@ -14,7 +14,6 @@ const Main = () => {
       <OrganizerTabs
         selectedTab={selectedTab}
         handleTabChange={setSelectedTab}
-        path={window.location.pathname}
       />
       </>
     );

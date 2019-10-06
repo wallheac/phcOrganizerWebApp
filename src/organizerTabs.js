@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {Tabs, Tab, AppBar, Paper} from '@material-ui/core';
 import { Link, Route, BrowserRouter, Switch } from "react-router-dom";
 
-const OrganizerTabs = ({selectedTab, handleTabChange, path}) => {
+const OrganizerTabs = ({selectedTab, handleTabChange}) => {
     const setTab = (event, value) => {
         handleTabChange(value)
     }
