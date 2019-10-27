@@ -1,22 +1,20 @@
-import React, {useState} from 'react';
-import {Typography} from '@material-ui/core';
-import OrganizerTabs from './organizerTabs';
-import './App.css';
+import React, { useState } from 'react'
+import Header from './header'
 
 const Main = () => {
   const calculateSelectedTab = () => {
-    return window.location.pathname === "/program" ? 1 : 0;
+    return window.location.pathname === '/program' ? 1 : 0
   }
-  const [selectedTab, setSelectedTab] = useState(calculateSelectedTab);
-  
-    return (
-      <>
-      <OrganizerTabs
+  const [selectedTab, setSelectedTab] = useState(calculateSelectedTab)
+
+  return (
+    <>
+      <Header
         selectedTab={selectedTab}
         handleTabChange={setSelectedTab}
       />
-      </>
-    );
+    </>
+  )
 }
 
-export default Main;
+export default Main
