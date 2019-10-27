@@ -4,6 +4,7 @@ import { Tabs, Tab, AppBar } from '@material-ui/core'
 import { Link, Route, BrowserRouter, Switch } from 'react-router-dom'
 import PanelAssignmentMain from './panelAssignment/panelAssignmentMain'
 import ProgramMain from './program/programMain'
+import Sticky from 'react-stickynode'
 
 const Header = ({ selectedTab, handleTabChange }) => {
   const setTab = (event, value) => {
@@ -12,6 +13,7 @@ const Header = ({ selectedTab, handleTabChange }) => {
   return (
     <BrowserRouter>
       <div>
+      <Sticky enabled={true} top={0} >
         <AppBar position="static">
           <Tabs
             onChange={setTab}
@@ -21,6 +23,7 @@ const Header = ({ selectedTab, handleTabChange }) => {
             <Tab label = "Program" component={Link} to="/program"/>
           </Tabs>
         </AppBar>
+        </Sticky>
         <Switch>
           <Route path="/program" component={ProgramMain} />
           <Route path="/" component={PanelAssignmentMain} />

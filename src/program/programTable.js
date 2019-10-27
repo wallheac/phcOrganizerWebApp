@@ -1,32 +1,27 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
+import Grid from '@material-ui/core/Grid'
 import ProgramRow from './programRow'
+import Sticky from 'react-stickynode'
 
 const ProgramTable = (props) => {
-  return <Table>
-    <TableHead>
-      <TableRow>
-        <TableCell>Panel Title</TableCell>
-        <TableCell>Participants</TableCell>
-        <TableCell>Papers</TableCell>
-      </TableRow>
-    </TableHead>
-    <TableBody>
-      {
-        props.panels.map((panel, index) => {
-          return <ProgramRow
-            index={index}
-            panel={panel}
-          />
-        })
-      }
-    </TableBody>
-  </Table>
+  return <>
+  <Sticky enabled={true} top={48}>
+    <Grid container style={{ padding: '10px', fontWeight: '500', borderBottom: '2px solid gray', background: 'white' }}>
+      <Grid item xs={3}>Panel Title</Grid>
+      <Grid item xs={3}>Participants</Grid>
+      <Grid item xs={3}>Papers</Grid>
+    </Grid>
+    </Sticky>
+    {
+      props.panels.map((panel, index) => {
+        return <ProgramRow key={index}
+          index={index}
+          panel={panel}
+        />
+      })
+    }
+  </>
 }
 
 ProgramTable.propTypes = {
