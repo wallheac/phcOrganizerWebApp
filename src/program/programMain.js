@@ -14,7 +14,7 @@ const ProgramMain = (theme) => {
 
   return <>{
     panels
-      ? <ProgramTable 
+      ? <ProgramTable
         panels={panels}
       />
       : 'please wait'
