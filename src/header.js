@@ -13,16 +13,16 @@ const Header = ({ selectedTab, handleTabChange }) => {
   return (
     <BrowserRouter>
       <div>
-      <Sticky enabled={true} top={0} >
-        <AppBar position="static">
-          <Tabs
-            onChange={setTab}
-            value={selectedTab}
-          >
-            <Tab label="Panel Assignment" component={Link} to="/" />
-            <Tab label = "Program" component={Link} to="/program"/>
-          </Tabs>
-        </AppBar>
+        <Sticky enabled={true} top={0} >
+          <AppBar position="static">
+            <Tabs
+              onChange={setTab}
+              value={selectedTab}
+            >
+              <Tab label="Panel Assignment" component={Link} to="/" />
+              <Tab label = "Program" component={Link} to="/program"/>
+            </Tabs>
+          </AppBar>
         </Sticky>
         <Switch>
           <Route path="/program" component={ProgramMain} />
