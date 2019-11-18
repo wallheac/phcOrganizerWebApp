@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { Grid, Paper, Typography, Button, TextField } from '@material-ui/core'
+import { Grid, Paper, Typography, Button, TextField, Modal, FormControl, Input, InputLabel } from '@material-ui/core'
+import Panel from './panel'
+import { InsertDriveFile } from '@material-ui/icons'
 
 const PanelAssignmentMain = (theme) => {
   const getPapers = async () => {
@@ -26,6 +28,7 @@ const PanelAssignmentMain = (theme) => {
     const panelCopy = [...panels]
     panelCopy.push({ title: panelText })
     setPanels(panelCopy)
+    setPanelText('')
   }
 
   const onDragStart = (event) => {
@@ -64,8 +67,24 @@ const PanelAssignmentMain = (theme) => {
 
   return <>
     <Grid container spacing={2} style={{ padding: '10px' }}>
+      <Grid item xs={12} style={{ display: 'flex', alignItems: 'center' }}>
+        <TextField
+          margin="normal"
+          variant="outlined"
+          style={{ paddingRight: '1em', minWidth: '400px' }}
+          onChange={onPanelTextEntry}
+        >
+          {panelText}
+        </TextField>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleCreateClick}>
+              Create Panel
+        </Button>
+      </Grid>
       <Grid item xs={6}>
-        <Typography variant="h5">Unassigned Papers</Typography>
+        <Typography variant="h5" style={{ paddingBottom: '1em' }}>Unassigned Papers</Typography>
         <Paper>
           {
             papers && papers.map(paper =>
@@ -73,55 +92,35 @@ const PanelAssignmentMain = (theme) => {
                 paperid={paper.paperId}
                 draggable
                 onDragStart={event => onDragStart(event)}
+                style={{ display: 'flex', justifyContent: 'space-between' }}
               >
-                {`${paper.participant.firstName} ${paper.participant.lastName}: ${paper.title}`}
+                <span>{`${paper.participant.firstName} ${paper.participant.lastName}: ${paper.title}`}</span>
+                <InsertDriveFile style={{ color: 'darkgray', display: 'inline', padding: '3px' }}/>
               </div>
             )
           }
         </Paper>
       </Grid>
       <Grid item xs={6}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <TextField
-            margin="normal"
-            variant="outlined"
-            style={{ paddingRight: '1em', minWidth: '400px' }}
-            onChange={onPanelTextEntry}
-          >
-            {panelText}
-          </TextField>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleCreateClick}>
-              Create Panel
-          </Button>
-        </div>
-        <Typography variant="h5">Available Panels</Typography>
+        <Typography variant="h5" style={{ paddingBottom: '1em' }}>Available Panels</Typography>
         <Paper>
           {
-            panels && panels.map(panel => <div
-              style={hoveredPanel === panel.title ? { backgroundColor: '#DCDCDC', fontWeight: 'bold' } : { backgroundColor: 'white' }}
-              key={panel.title}
-              onDragEnter={event => onDragEnter(event)}
-              onDragOver={event => event.preventDefault()}
-              onDrop={event => onDrop(event, panel)}
-            >
-              {panel.title}
-              {console.log(panel)}
-              <div>
-                {
-                  panel.papers && panel.papers.map(paper => <div key={paper.paperId}>
-                    {`${paper.participant.firstName} ${paper.participant.lastName}: ${paper.title}`}
-                  </div>)
-                }
-              </div>
-            </div>)
+            panels && panels.map((panel, idx) =>
+              <Panel
+                key={idx}
+                onDrop={onDrop}
+                onDragEnter={onDragEnter}
+                hoveredPanel={hoveredPanel}
+                panel={panel}
+              />
+            )
           }
         </Paper>
       </Grid>
     </Grid>
   </>
 }
+
+
 
 export default PanelAssignmentMain
