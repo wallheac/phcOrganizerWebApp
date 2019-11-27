@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { List } from 'immutable'
 import { Paper, Modal, Input, InputLabel, Button } from '@material-ui/core'
 import { Save, Edit } from '@material-ui/icons'
 import ConfPaper from './paper'
@@ -7,6 +8,12 @@ import ConfPaper from './paper'
 const Panel = (props) => {
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState(props.panel.title)
+  const [papers, setPapers] = useState([])
+
+  useEffect(() => {
+    const papersCopy = List(props.panel.papers)
+    setPapers(papersCopy)
+  }, [props])
 
   const handleEdit = () => {
     setEditing(true)
@@ -18,6 +25,20 @@ const Panel = (props) => {
 
   const handleTitleEdit = (event) => {
     setTitle(event.target.value)
+  }
+
+  const handlePaperEdit = (name, value, paperId) => {
+    const currentPapers = papers
+    const paperIndex = currentPapers.findIndex(currentPaper => currentPaper.getIn(['paperId']) === paperId)
+    const changedPaper = currentPapers.getIn([paperIndex.toString()])
+    let newPaper
+    if (name === 'title') {
+      newPaper = changedPaper.updateIn(['title'], value)
+    } else {
+      newPaper = changedPaper.updateIn(['participant', name], () => value)
+    }
+    const newPaperList = currentPapers.splice(paperIndex, 1, newPaper)
+    setPapers(newPaperList)
   }
 
   return <div
@@ -33,9 +54,10 @@ const Panel = (props) => {
     </div>
     <div>
       {
-        props.panel.papers && props.panel.papers.map(paper => <div key={paper.paperId} style={{ fontWeight: '400', fontSize: '0.8em', paddingLeft: '1em' }}>
-          {`${paper.participant.firstName} ${paper.participant.lastName}: ${paper.title}`}
-        </div>)
+        props.panel.papers && props.panel.papers.map(paper =>
+          <div key={paper.getIn(['paperId'])} style={{ fontWeight: '400', fontSize: '0.8em', paddingLeft: '1em' }}>
+            {`${paper.getIn(['participant', 'firstName'])} ${paper.getIn(['participant', 'lastName'])}: ${paper.getIn(['title'])}`}
+          </div>)
       }
     </div>
     {
@@ -59,9 +81,10 @@ const Panel = (props) => {
               {title}
             </Input>
             {
-              props.panel.papers && props.panel.papers.map(paper =>
-                <div key={paper.paperId}><ConfPaper
+              papers && papers.map(paper =>
+                <div key={paper.getIn(['paperId'])}><ConfPaper
                   paper={paper}
+                  onPaperEdit={handlePaperEdit}
                 />
                 </div>
               )
@@ -69,10 +92,10 @@ const Panel = (props) => {
           </div>
           <div style={{ paddingTop: '10px' }}>
             <Button
-            variant="contained"
-            color="primary">
+              variant="contained"
+              color="primary">
             Submit
-          </Button>
+            </Button>
           </div>
         </Paper>
 

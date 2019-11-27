@@ -1,36 +1,12 @@
-import React, { useState } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import { Input, InputLabel } from '@material-ui/core'
 
 const ConfPaper = (props) => {
-  const [title, setTitle] = useState(props.paper.title)
-  const [firstName, setFirstName] = useState(props.paper.participant.firstName)
-  const [lastName, setLastName] = useState(props.paper.participant.lastName)
-  const [status, setStatus] = useState(props.paper.participant.status)
-  const [institution, setInstitution] = useState(props.paper.participant.institution)
-  const [email, setEmail] = useState(props.paper.participant.email)
 
   const handleEdit = name => event => {
     event.preventDefault()
-    switch (name) {
-      case 'firstName':
-        setFirstName(event.target.value)
-        break
-      case 'title':
-        setTitle(event.target.value)
-        break
-      case 'lastName':
-        setLastName(event.target.value)
-        break
-      case 'status':
-        setStatus(event.target.value)
-        break
-      case 'institution':
-        setInstitution(event.target.value)
-        break
-      case 'email':
-        setEmail(event.target.value)
-    }
+    props.onPaperEdit(name, event.target.value, props.paper.getIn(['paperId']))
   }
 
   return <div style={{ paddingTop: '40px' }}>
@@ -41,8 +17,8 @@ const ConfPaper = (props) => {
           multiline
           fullWidth
           onChange={handleEdit('firstName')}
-          value={firstName}>
-          {firstName}
+          value={props.paper.getIn(['participant', 'firstName'])}>
+          {props.paper.getIn(['participant', 'firstName'])}
         </Input>
       </div>
       <div style={{ paddingLeft: '10px', width: '50%' }}>
@@ -51,8 +27,8 @@ const ConfPaper = (props) => {
           multiline
           fullWidth
           onChange={handleEdit('lastName')}
-          value={lastName}>
-          {lastName}
+          value={props.paper.getIn(['participant', 'lastName'])}>
+          {props.paper.getIn(['participant', 'lastName'])}
         </Input>
       </div>
     </div>
@@ -63,8 +39,8 @@ const ConfPaper = (props) => {
           multiline
           fullWidth
           onChange={handleEdit('status')}
-          value={status}>
-          {status}
+          value={props.paper.getIn(['participant', 'status'])}>
+          {props.paper.getIn(['participant', 'status'])}
         </Input>
       </div>
       <div style={{ paddingLeft: '10px', width: '50%' }}>
@@ -73,8 +49,8 @@ const ConfPaper = (props) => {
           multiline
           fullWidth
           onChange={handleEdit('institution')}
-          value={institution}>
-          {institution}
+          value={props.paper.getIn(['participant', 'institution'])}>
+          {props.paper.getIn(['participant', 'institution'])}
         </Input>
       </div>
     </div>
@@ -83,8 +59,8 @@ const ConfPaper = (props) => {
     <Input
       multiline
       onChange={handleEdit('email')}
-      value={email}>
-      {email}
+      value={props.paper.getIn(['participant', 'email'])}>
+      {props.paper.getIn(['participant', 'email'])}
     </Input>
 
     <InputLabel style={{ paddingTop: '10px' }}>Paper Title</InputLabel>
@@ -92,8 +68,8 @@ const ConfPaper = (props) => {
       multiline
       fullWidth
       onChange={handleEdit('title')}
-      value={title}>
-      {title}
+      value={props.paper.getIn(['title'])}>
+      {props.paper.getIn(['title'])}
     </Input>
   </div>
 }
@@ -101,5 +77,6 @@ const ConfPaper = (props) => {
 export default ConfPaper
 
 ConfPaper.propTypes = {
-  paper: PropTypes.object.isRequired
+  paper: PropTypes.object.isRequired,
+  onPaperEdit: PropTypes.func.isRequired
 }
