@@ -2,8 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { Input, InputLabel } from '@material-ui/core'
 
-const ConfPaper = (props) => {
-
+const EditablePaper = (props) => {
   const handleEdit = name => event => {
     event.preventDefault()
     props.onPaperEdit(name, event.target.value, props.paper.getIn(['paperId']))
@@ -74,9 +73,9 @@ const ConfPaper = (props) => {
   </div>
 }
 
-export default ConfPaper
+export default EditablePaper
 
-ConfPaper.propTypes = {
+EditablePaper.propTypes = {
   paper: PropTypes.object.isRequired,
   onPaperEdit: PropTypes.func.isRequired
 }

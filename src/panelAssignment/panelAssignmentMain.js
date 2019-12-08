@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { List, Map, fromJS } from 'immutable'
-import { Grid, Paper, Typography, Button, TextField, Modal, FormControl, Input, InputLabel } from '@material-ui/core'
+import { List, fromJS } from 'immutable'
+import { Grid, Paper, Typography, Button, TextField } from '@material-ui/core'
 import Panel from './panel'
 import { InsertDriveFile } from '@material-ui/icons'
 
@@ -17,7 +17,7 @@ const PanelAssignmentMain = (theme) => {
 
   const [papers, setPapers] = useState(null)
   const [panelText, setPanelText] = useState(null)
-  const [panels, setPanels] = useState(List())
+  const [panels, setPanels] = useState(fromJS([]))
   const [hoveredPanel, setHoveredPanel] = useState(null)
 
   const onPanelTextEntry = (event) => {
@@ -26,9 +26,9 @@ const PanelAssignmentMain = (theme) => {
 
   const handleCreateClick = (event) => {
     event.preventDefault()
-    const panelCopy = [...panels]
-    panelCopy.push({ title: panelText })
-    setPanels(panelCopy)
+    const panelCopy = fromJS(panels)
+    const newPanels = panelCopy.push(fromJS({ title: panelText }))
+    setPanels(newPanels)
     setPanelText('')
   }
 
@@ -58,12 +58,26 @@ const PanelAssignmentMain = (theme) => {
 
   const addPaperToPanel = (paperId, panel) => {
     const assignedPaper = papers.find(paper => paper.getIn(['paperId']).toString() === paperId)
-    const panelsCopy = panels
-    const newPanel = panelsCopy.find(panelCopy => panelCopy.title === panel.title)
-    const panelIndex = panelsCopy.indexOf(newPanel)
-    newPanel.papers ? newPanel.papers.push(assignedPaper) : newPanel.papers = [assignedPaper]
-    panelsCopy[panelIndex] = newPanel
-    setPanels(panelsCopy)
+    const desiredPanel = panels.find(panelCopy => panelCopy.getIn(['title']) === panel.getIn(['title']))
+    const panelIndex = panels.indexOf(desiredPanel)
+
+    const withNewPaper = desiredPanel.getIn(['papers'])
+      ? desiredPanel.updateIn(['papers'], list => list.push(assignedPaper))
+      : desiredPanel.setIn(['papers'], List.of(assignedPaper))
+
+    setPanels(panels.setIn([panelIndex.toString()], withNewPaper))
+  }
+
+  const handleEditSubmit = (oldTitle, newTitle, papers) => {
+    const panelIndex = panels.findIndex(panel => panel.getIn(['title']) === oldTitle)
+    const panelWithUpdatedTitle = [...panels][panelIndex].updateIn(['title'], () => newTitle)
+    const panelNewPapers = panelWithUpdatedTitle.updateIn(['papers'], () => papers)
+    setPanels(panels.updateIn([panelIndex.toString()], () => panelNewPapers))
+  }
+
+  const handleFileClick = abstractUrl => event => {
+    event.preventDefault()
+    window.open(abstractUrl, '_blank')
   }
 
   return <>
@@ -96,7 +110,9 @@ const PanelAssignmentMain = (theme) => {
                 style={{ display: 'flex', justifyContent: 'space-between' }}
               >
                 <span>{`${paper.getIn(['participant', 'firstName'])} ${paper.getIn(['participant', 'lastName'])}: ${paper.getIn(['title'])}`}</span>
-                <InsertDriveFile style={{ color: 'darkgray', display: 'inline', padding: '3px' }}/>
+                <InsertDriveFile
+                  onClick={handleFileClick(paper.getIn(['abstractUrl']))}
+                  style={{ color: 'darkgray', display: 'inline', padding: '3px' }}/>
               </div>
             )
           }
@@ -107,13 +123,15 @@ const PanelAssignmentMain = (theme) => {
         <Paper>
           {
             panels && panels.map((panel, idx) => {
-              console.log(panel)
+              console.log(panel.toJS())
               return <Panel
                 key={idx}
                 onDrop={onDrop}
                 onDragEnter={onDragEnter}
                 hoveredPanel={hoveredPanel}
+                onSubmit={handleEditSubmit}
                 panel={panel}
+                onFileClick={handleFileClick}
               />
             })
           }
@@ -122,7 +140,5 @@ const PanelAssignmentMain = (theme) => {
     </Grid>
   </>
 }
-
-
 
 export default PanelAssignmentMain
