@@ -10,6 +10,10 @@ const Panel = (props) => {
     setEditing(true)
   }
 
+  const handleSave = () => {
+    props.onSave(props.panel.getIn(['title']))
+  }
+
   return <div
     style={props.hoveredPanel === props.panel.getIn(['title']) ? styles.panelHover : styles.panelItem}
     onDragEnter={event => props.onDragEnter(event)}
@@ -20,7 +24,7 @@ const Panel = (props) => {
       {props.panel.getIn(['title'])}
       <div >
         <Edit style={{ color: 'darkgray' }} onClick={handleEdit}/>
-        <Save style={{ color: 'darkgray' }}/>
+        <Save style={{ color: 'darkgray' }} onClick={handleSave}/>
       </div>
     </div>
     <div>
@@ -60,7 +64,8 @@ Panel.propTypes = {
   hoveredPanel: PropTypes.string,
   panel: PropTypes.object.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  onFileClick: PropTypes.func.isRequired
+  onFileClick: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired
 }
 
 export default Panel

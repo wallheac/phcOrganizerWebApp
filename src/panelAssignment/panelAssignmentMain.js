@@ -11,6 +11,20 @@ const PanelAssignmentMain = (theme) => {
     setPapers(fromJS(papers.content))
   }
 
+  const savePanel = async (panel) => {
+    fetch('http://localhost:3001/organizer/constructedpanel', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(
+        panel.toJS()
+      )
+    }).then(removePanelFromUnsavedPanels(panel))
+      .catch(error => console.log(error))
+  }
+
   useEffect(() => {
     getPapers()
   }, [])
@@ -56,6 +70,11 @@ const PanelAssignmentMain = (theme) => {
     setPapers(unassignedPapers)
   }
 
+  const removePanelFromUnsavedPanels = (savedPanel) => {
+    const unsavedPanels = panels.filter(panel => panel.getIn(['title']) !== savedPanel.getIn(['title']))
+    setPanels(unsavedPanels)
+  }
+
   const addPaperToPanel = (paperId, panel) => {
     const assignedPaper = papers.find(paper => paper.getIn(['paperId']).toString() === paperId)
     const desiredPanel = panels.find(panelCopy => panelCopy.getIn(['title']) === panel.getIn(['title']))
@@ -78,6 +97,12 @@ const PanelAssignmentMain = (theme) => {
   const handleFileClick = abstractUrl => event => {
     event.preventDefault()
     window.open(abstractUrl, '_blank')
+  }
+
+  const handlePanelSave = (panelTitle) => {
+    const panel = panels.find(panel => panel.getIn(['title']) === panelTitle)
+    console.log('in save', panel.toJS())
+    savePanel(panel)
   }
 
   return <>
@@ -123,7 +148,6 @@ const PanelAssignmentMain = (theme) => {
         <Paper>
           {
             panels && panels.map((panel, idx) => {
-              console.log(panel.toJS())
               return <Panel
                 key={idx}
                 onDrop={onDrop}
@@ -132,6 +156,7 @@ const PanelAssignmentMain = (theme) => {
                 onSubmit={handleEditSubmit}
                 panel={panel}
                 onFileClick={handleFileClick}
+                onSave={handlePanelSave}
               />
             })
           }

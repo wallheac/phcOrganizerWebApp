@@ -1,12 +1,17 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { fromJS } from 'immutable'
 import ProgramTable from './programTable'
 
 const ProgramMain = (theme) => {
   const getPanels = async () => {
     const panels = await fetch('http://localhost:3001/organizer/panels')
       .then(response => response.json())
-    setPanels(panels.content)
+    setPanels(fromJS(panels.content))
   }
+
+  useEffect(() => {
+    getPanels()
+  }, [])
 
   const [panels, setPanels] = useState(null)
 
