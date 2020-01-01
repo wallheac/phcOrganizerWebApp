@@ -83,7 +83,6 @@ const PanelAssignmentMain = (theme) => {
     const withNewPaper = desiredPanel.getIn(['papers'])
       ? desiredPanel.updateIn(['papers'], list => list.push(assignedPaper))
       : desiredPanel.setIn(['papers'], List.of(assignedPaper))
-
     setPanels(panels.setIn([panelIndex.toString()], withNewPaper))
   }
 

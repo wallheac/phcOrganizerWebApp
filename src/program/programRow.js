@@ -23,6 +23,11 @@ const ProgramRow = (props) => {
 
   const handleClose = () => setEditing(false)
 
+  const handleFileClick = abstractUrl => event => {
+    event.preventDefault()
+    window.open(abstractUrl, '_blank')
+  }
+
   return <Grid container spacing={2} style={props.index % 2 === 0 ? styles.rowEven : styles.rowOdd}>
     <Grid item xs={2}>
       <div style={styles.iconGroup}>
@@ -32,9 +37,12 @@ const ProgramRow = (props) => {
             onClick={handleEdit}
           />
           <Save style={{ color: 'darkgray' }}/>
+          <InsertDriveFile
+            style={{ color: 'darkgray' }}
+            onClick={handleFileClick(props.panel.getIn(['abstractUrl']))}
+          />
         </div>
       </div>
-      {props.panel.getIn(['panelName'])}
     </Grid>
     <Grid item xs={1}>
       {props.panel.dateTime || 'unassigned'}

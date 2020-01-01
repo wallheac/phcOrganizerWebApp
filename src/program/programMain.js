@@ -15,8 +15,6 @@ const ProgramMain = (theme) => {
 
   const [panels, setPanels] = useState(null)
 
-  getPanels()
-
   return <>{
     panels
       ? <ProgramTable
