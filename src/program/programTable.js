@@ -5,6 +5,7 @@ import ProgramRow from './programRow'
 import Sticky from 'react-stickynode'
 
 const ProgramTable = (props) => {
+  
   return <>
     <Sticky enabled={true} top={48}>
       <Grid container style={{ padding: '10px', fontWeight: '500', borderBottom: '2px solid gray', background: 'white' }}>
@@ -19,6 +20,8 @@ const ProgramTable = (props) => {
         return <ProgramRow key={index}
           index={index}
           panel={panel}
+          onEditSubmit={props.onEditSubmit}
+          onSave={props.onSave}
         />
       })
     }
@@ -26,7 +29,10 @@ const ProgramTable = (props) => {
 }
 
 ProgramTable.propTypes = {
-  panels: PropTypes.array.isRequired
+  panels: PropTypes.object.isRequired,
+  index: PropTypes.number.isRequired,
+  onEditSubmit: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired
 }
 
 export default ProgramTable
