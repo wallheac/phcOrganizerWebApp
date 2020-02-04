@@ -2,20 +2,32 @@ import React, { useState, useEffect } from 'react'
 import { List, fromJS } from 'immutable'
 import { Grid, Paper, Typography, Button, TextField } from '@material-ui/core'
 import Panel from './panel'
-import { InsertDriveFile } from '@material-ui/icons'
+import Filters from './filters'
+import { InsertDriveFile, Done, Clear } from '@material-ui/icons'
 
-const PanelAssignmentMain = (theme) => {
+const PanelAssignmentMain = () => {
+  const [papers, setPapers] = useState(null)
+  const [panelText, setPanelText] = useState(null)
+  const [panels, setPanels] = useState(fromJS([]))
+  const [hoveredPanel, setHoveredPanel] = useState(null)
+  const [showAccepted, setShowAccepted] = useState(true)
+  const [showRejected, setShowRejected] = useState(true)
+
   const getPapers = async () => {
     const papers = await fetch('http://localhost:3001/organizer/papers?unassigned=true')
       .then(response => response.json())
     setPapers(fromJS(papers.content))
   }
 
+  useEffect(() => {
+    getPapers()
+  }, [])
+
   const savePanel = async (panel) => {
     fetch('http://localhost:3001/organizer/constructedpanel', {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(
@@ -25,14 +37,19 @@ const PanelAssignmentMain = (theme) => {
       .catch(error => console.log(error))
   }
 
-  useEffect(() => {
-    getPapers()
-  }, [])
-
-  const [papers, setPapers] = useState(null)
-  const [panelText, setPanelText] = useState(null)
-  const [panels, setPanels] = useState(fromJS([]))
-  const [hoveredPanel, setHoveredPanel] = useState(null)
+  const savePaper = async (paper) => {
+    const id = paper.getIn(['paperId'])
+    fetch(`http://localhost:3001/organizer/paper/${id}`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(
+        paper.toJS()
+      )
+    }).catch(error => console.log(error))
+  }
 
   const onPanelTextEntry = (event) => {
     setPanelText(event.target.value)
@@ -104,6 +121,32 @@ const PanelAssignmentMain = (theme) => {
     savePanel(panel)
   }
 
+  const handleAccept = (paperId) => {
+    setAccepted(paperId, true)
+  }
+
+  const handleReject = (paperId) => {
+    setAccepted(paperId, false)
+  }
+
+  const setAccepted = (paperId, value) => {
+    const originalPaper = papers.find(paper => paper.getIn(['paperId']) === paperId)
+    if (value !== originalPaper.getIn(['accepted'])) {
+      const updatedPaper = originalPaper.updateIn(['accepted'], () => value)
+      const paperIndex = papers.findIndex(paper => paper.getIn(['paperId']) === paperId)
+      setPapers(papers.setIn([paperIndex.toString()], updatedPaper))
+      savePaper(updatedPaper)
+    }
+  }
+
+  const handleToggleShowAcceptance = (checkboxId, value) => {
+    if (checkboxId === 'Accepted') {
+      setShowAccepted(!showAccepted)
+    } else {
+      setShowRejected(!showRejected)
+    }
+  }
+
   return <>
     <Grid container spacing={2} style={{ padding: '10px' }}>
       <Grid item xs={12} style={{ display: 'flex', alignItems: 'center' }}>
@@ -124,21 +167,35 @@ const PanelAssignmentMain = (theme) => {
       </Grid>
       <Grid item xs={6}>
         <Typography variant="h5" style={{ paddingBottom: '1em' }}>Unassigned Papers</Typography>
+        <Filters
+          showAccepted={showAccepted}
+          showRejected={showRejected}
+          onShowAcceptanceToggle={handleToggleShowAcceptance}
+        />
         <Paper>
           {
-            papers && papers.map(paper =>
-              <div key={paper.getIn(['paperId'])}
-                paperid={paper.getIn(['paperId'])}
-                draggable
-                onDragStart={event => onDragStart(event)}
-                style={{ display: 'flex', justifyContent: 'space-between' }}
-              >
-                <span>{`${paper.getIn(['participant', 'firstName'])} ${paper.getIn(['participant', 'lastName'])}: ${paper.getIn(['title'])}`}</span>
-                <InsertDriveFile
-                  onClick={handleFileClick(paper.getIn(['abstractUrl']))}
-                  style={{ color: 'darkgray', display: 'inline', padding: '3px' }}/>
-              </div>
-            )
+            (showAccepted || showRejected) && papers && papers
+              .filter(paper => (paper.getIn(['accepted']) === showAccepted || paper.getIn(['accepted']) !== showRejected))
+              .map(paper =>
+                <div key={paper.getIn(['paperId'])}
+                  paperid={paper.getIn(['paperId'])}
+                  draggable
+                  onDragStart={event => onDragStart(event)}
+                  style={{ display: 'flex', justifyContent: 'space-between' }}
+                >
+                  <span>{`${paper.getIn(['participant', 'firstName'])} ${paper.getIn(['participant', 'lastName'])}: ${paper.getIn(['title'])}`}</span>
+                  <div style={{ display: 'inline-flex' }}>
+                    <Done
+                      style={paper.getIn(['accepted']) ? styles.accepted : { color: 'green' }}
+                      onClick={event => handleAccept(paper.getIn(['paperId']))} />
+                    <Clear style={paper.getIn(['accepted']) ? { color: 'red' } : styles.rejected }
+                      onClick={event => handleReject(paper.getIn(['paperId']))}/>
+                    <InsertDriveFile
+                      onClick={handleFileClick(paper.getIn(['abstractUrl']))}
+                      style={{ color: 'darkgray', display: 'inline', padding: '3px' }}/>
+                  </div>
+                </div>
+              )
           }
         </Paper>
       </Grid>
@@ -166,3 +223,8 @@ const PanelAssignmentMain = (theme) => {
 }
 
 export default PanelAssignmentMain
+
+const styles = {
+  accepted: { color: 'green', backgroundColor: 'lightgreen', borderRadius: '50%' },
+  rejected: { color: 'red', backgroundColor: 'pink', borderRadius: '50%' }
+}
