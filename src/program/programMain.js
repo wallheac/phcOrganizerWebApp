@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { fromJS } from 'immutable'
 import ProgramTable from './programTable'
+import Filters from '../filters'
 
 const ProgramMain = (theme) => {
   const getPanels = async () => {
@@ -14,6 +15,8 @@ const ProgramMain = (theme) => {
   }, [])
 
   const [panels, setPanels] = useState(null)
+  const [showAccepted, setShowAccepted] = useState(true)
+  const [showRejected, setShowRejected] = useState(true)
 
   const handleEditSubmit = (panelId, title, participants) => {
     const panelIndex = panels.findIndex(panel => panel.getIn(['panelId']) === panelId)
@@ -26,7 +29,7 @@ const ProgramMain = (theme) => {
     fetch('http://localhost:3001/organizer/panel', {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(
@@ -36,20 +39,50 @@ const ProgramMain = (theme) => {
       .catch(error => console.log(error))
   }
 
-  const handleSave = (panelId) => {
-    const panel = panels.find(panel => panel.getIn(['panelId']) === panelId)
-    savePanel(panel)
+  const handleSave = (panelId, changedPanelValues) => {
+    let changedPanel = panels.find(panel => panel.getIn(['panelId']) === panelId)
+    if (changedPanelValues) {
+      Object.entries(changedPanelValues).forEach(([key, value]) => {
+        changedPanel = changedPanel.updateIn([key.toString()], () => value)
+      })
+    }
+    savePanel(changedPanel)
   }
 
-  return <>{
-    panels
-      ? <ProgramTable
-        panels={panels}
-        onEditSubmit={handleEditSubmit}
-        onSave={handleSave}
-      />
-      : 'please wait'
-  }</>
+  const setAccepted = (panelId, value) => {
+    const originalPanel = panels.find(panel => panel.getIn(['panelId']) === panelId)
+    const updatedPanel = originalPanel.updateIn(['accepted'], () => value)
+    const panelIndex = panels.findIndex(panel => panel.getIn(['panelId']) === panelId)
+    setPanels(panels.setIn([panelIndex.toString()], updatedPanel))
+    savePanel(updatedPanel)
+  }
+
+  const handleToggleShowAcceptance = (checkboxId, value) => {
+    if (checkboxId === 'Accepted') {
+      setShowAccepted(!showAccepted)
+    } else {
+      setShowRejected(!showRejected)
+    }
+  }
+
+  return <>
+    <Filters
+      showAccepted={showAccepted}
+      showRejected={showRejected}
+      onShowAcceptanceToggle={handleToggleShowAcceptance}
+    />
+    {
+      panels
+        ? <ProgramTable
+          panels={panels}
+          onEditSubmit={handleEditSubmit}
+          onToggleAccepted={setAccepted}
+          showAccepted={showAccepted}
+          showRejected={showRejected}
+          onSave={handleSave}
+        />
+        : 'please wait'
+    }</>
 }
 
 export default ProgramMain

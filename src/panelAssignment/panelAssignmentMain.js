@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { List, fromJS } from 'immutable'
 import { Grid, Paper, Typography, Button, TextField } from '@material-ui/core'
 import Panel from './panel'
-import Filters from './filters'
+import Filters from '../filters'
 import { InsertDriveFile, Done, Clear } from '@material-ui/icons'
 
 const PanelAssignmentMain = () => {

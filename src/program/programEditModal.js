@@ -4,42 +4,41 @@ import { Input, InputLabel, Button, Modal, Paper } from '@material-ui/core'
 import EditableParticipant from './editableParticipant'
 
 const ProgramEditModal = (props) => {
-  const [title, setTitle] = useState(props.panel.getIn(['panelName']))
+  const [panel, setPanel] = useState(props.panel)
   const [participants, setParticipants] = useState(props.panel.getIn(['participants']))
 
   useEffect(() => {
     const participantsCopy = props.panel.getIn(['participants'])
     setParticipants(participantsCopy)
-    setTitle(props.panel.getIn(['panelName']))
   }, [props])
 
   const handleClose = () => {
     props.onClose(false)
   }
 
-  const handleTitleEdit = (event) => {
-    setTitle(event.target.value)
+  const handlePanelFieldEdit = field => event => {
+    event.preventDefault()
+    setPanel(panel.updateIn([field], () => event.target.value))
   }
 
-  // TODO change this to handle participants
   const handleParticipantEdit = (name, value, participantId) => {
-    const currentParticipants = participants
-    const participantIndex = currentParticipants
+    const participantIndex = participants
       .findIndex(currentParticipant => currentParticipant.getIn(['participantId']) === participantId)
-    const changedParticipant = currentParticipants.getIn([participantIndex.toString()])
+    const changedParticipant = participants.getIn([participantIndex.toString()])
     let newParticipant
     if (name === 'title') {
       newParticipant = changedParticipant.updateIn(['paper', 'title'], () => value)
     } else {
       newParticipant = changedParticipant.updateIn([name], () => value)
     }
-    const newParticipantList = currentParticipants.splice(participantIndex, 1, newParticipant)
+    const newParticipantList = participants.splice(participantIndex, 1, newParticipant)
     setParticipants(newParticipantList)
   }
 
+  // TODO - change to handle full panel, not just panelName
   const handleSubmit = () => {
     props.onClose(false)
-    props.onSubmit(props.panel.getIn(['panelId']), title, participants)
+    props.onSubmit(panel.getIn(['panelId']), panel.getIn(['panelName']), participants)
   }
 
   return <Modal
@@ -55,10 +54,20 @@ const ProgramEditModal = (props) => {
             style={{ paddingBottom: '3px' }}
             multiline
             fullWidth
-            onChange={handleTitleEdit}
-            value={title}
+            onChange={handlePanelFieldEdit('panelName')}
+            value={panel.getIn(['panelName'])}
           >
-            {title}
+            {panel.getIn(['panelName'])}
+          </Input>
+          <InputLabel style={{ paddingTop: '3px' }}>Panel Notes</InputLabel>
+          <Input
+            style={{ paddingBottom: '3px' }}
+            multiline
+            fullWidth
+            onChange={handlePanelFieldEdit('notes')}
+            value={panel.getIn(['notes'])}
+          >
+            {panel.getIn(['notes'])}
           </Input>
           {
             participants && participants.map(participant =>

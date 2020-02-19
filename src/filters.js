@@ -12,8 +12,8 @@ const Filters = (props) => {
   }
 
   return <div>
-    <h3>Show Paper Status:</h3>
-    <div style={{marginBottom: '1em' }}>
+    <h3>Filters:</h3>
+    <div style={{ marginBottom: '1em' }}>
       <FormControlLabel
         control={<Checkbox
           checked={props.showAccepted}
