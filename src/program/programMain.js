@@ -57,6 +57,14 @@ const ProgramMain = (theme) => {
     savePanel(updatedPanel)
   }
 
+  const setTimeSlot = (panelId, time) => {
+    const originalPanel = panels.find(panel => panel.getIn(['panelId']) === panelId)
+    const updatedPanel = originalPanel.updateIn(['dateTime'], () => time)
+    const panelIndex = panels.findIndex(panel => panel.getIn(['panelId']) === panelId)
+    setPanels(panels.setIn([panelIndex.toString()], updatedPanel))
+    savePanel(updatedPanel)
+  }
+
   const handleToggleShowAcceptance = (checkboxId, value) => {
     if (checkboxId === 'Accepted') {
       setShowAccepted(!showAccepted)
@@ -76,6 +84,7 @@ const ProgramMain = (theme) => {
         ? <ProgramTable
           panels={panels}
           onEditSubmit={handleEditSubmit}
+          onTimeSlotChange={setTimeSlot}
           onToggleAccepted={setAccepted}
           showAccepted={showAccepted}
           showRejected={showRejected}

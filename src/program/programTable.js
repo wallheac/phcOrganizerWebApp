@@ -24,6 +24,7 @@ const ProgramTable = (props) => {
             onEditSubmit={props.onEditSubmit}
             onSave={props.onSave}
             onToggleAccepted={props.onToggleAccepted}
+            onTimeSlotChange={props.onTimeSlotChange}
           />
         })
     }
@@ -36,6 +37,7 @@ ProgramTable.propTypes = {
   onEditSubmit: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
   onToggleAccepted: PropTypes.func.isRequired,
+  onTimeSlotChange: PropTypes.func.isRequired,
   showRejected: PropTypes.bool,
   showAccepted: PropTypes.bool
 }

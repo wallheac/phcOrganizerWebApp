@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import Grid from '@material-ui/core/Grid'
+import Moment from 'moment'
 import { Save, Edit, InsertDriveFile, Done, Clear, VideoCall } from '@material-ui/icons'
 import ProgramEditModal from './programEditModal'
 import AvModal from './avModal'
+import PanelTimeSelector from './panelTimeSelector'
 
 const styles = {
   rowEven: { padding: '10px' },
@@ -59,6 +61,10 @@ const ProgramRow = (props) => {
     }
   }
 
+  const handleTimeSlotChange = (time) => {
+    props.onTimeSlotChange(props.panel.getIn(['panelId']), time)
+  }
+
   return <Grid container spacing={2} style={props.index % 2 === 0 ? styles.rowEven : styles.rowOdd}>
     <Grid item xs={2}>
       <div style={styles.iconGroup}>
@@ -85,14 +91,16 @@ const ProgramRow = (props) => {
             <Done
               style={props.panel.getIn(['accepted']) ? styles.accepted : { color: 'green' }}
               onClick={event => handleAccept(props.panel.getIn(['panelId']))} />
-            <Clear style={props.panel.getIn(['accepted']) ? { color: 'red' } : styles.rejected }
-              onClick={event => handleReject(props.panel.getIn(['panelId']))}/>
+            <Clear style={props.panel.getIn(['accepted']) ? { color: 'red' } : styles.rejected}
+              onClick={event => handleReject(props.panel.getIn(['panelId']))} />
           </div>
         </div>
       </div>
     </Grid>
     <Grid item xs={1}>
-      {props.panel.dateTime || 'unassigned'}
+      {props.panel.getIn(['dateTime']) ? Moment(props.panel.getIn(['dateTime'])).format('ddd hh:mm a') : <PanelTimeSelector
+        onTimeSlotChange={handleTimeSlotChange} />
+      }
     </Grid>
     <Grid container item xs={9}>
       {props.panel.getIn(['participants']).map((participant, index) =>
@@ -115,12 +123,12 @@ const ProgramRow = (props) => {
     }
     {
       avRequestOpen &&
-    <AvModal
-      open={avRequestOpen}
-      avRequested={props.panel.getIn(['avRequested'])}
-      requestor={props.panel.getIn(['requestor'])}
-      onSave={handleSave}
-      onClose={handleToggleAvRequestOpen} />
+      <AvModal
+        open={avRequestOpen}
+        avRequested={props.panel.getIn(['avRequested'])}
+        requestor={props.panel.getIn(['requestor'])}
+        onSave={handleSave}
+        onClose={handleToggleAvRequestOpen} />
     }
   </Grid>
 }
@@ -130,7 +138,8 @@ ProgramRow.propTypes = {
   index: PropTypes.number.isRequired,
   onSave: PropTypes.func.isRequired,
   onEditSubmit: PropTypes.func.isRequired,
-  onToggleAccepted: PropTypes.func.isRequired
+  onToggleAccepted: PropTypes.func.isRequired,
+  onTimeSlotChange: PropTypes.func.isRequired
 }
 
 export default ProgramRow
